@@ -123,7 +123,16 @@ export default function PlayScreen({ section }: PlayScreenProps) {
       setPlayState("FIRST_WRONG");
       playWrongSound();
     } else {
-      // Second wrong answer — call explain API
+      // Second wrong answer — show wrong immediately, fetch explanation in background
+      setStreak(0);
+      const newDifficulty = updateDifficulty(difficulty, false);
+      updateSection(section, newDifficulty);
+      setPlayState("WRONG");
+      setExplanation(null);
+      playWrongSound();
+      prefetchProblem(newDifficulty.level);
+
+      // Fetch explanation in background
       try {
         const res = await fetch("/api/explain", {
           method: "POST",
@@ -150,13 +159,6 @@ export default function PlayScreen({ section }: PlayScreenProps) {
           encouragement: "You can do it!",
         });
       }
-
-      setStreak(0);
-      const newDifficulty = updateDifficulty(difficulty, false);
-      updateSection(section, newDifficulty);
-
-      setPlayState("WRONG");
-      prefetchProblem(newDifficulty.level);
     }
   }, [problem, answer, isRetry, difficulty, section, addTokens, updateSection, prefetchProblem]);
 
@@ -315,6 +317,32 @@ export default function PlayScreen({ section }: PlayScreenProps) {
             >
               Try Again
             </button>
+          </motion.div>
+        )}
+
+        {playState === "WRONG" && !explanation && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto text-center"
+          >
+            <p className="text-2xl font-bold text-red-500 mb-2">
+              Not quite right!
+            </p>
+            <p className="text-lg text-gray-600">
+              Let me get an explanation for you...
+            </p>
+            <div className="mt-4 flex justify-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full bg-indigo-400"
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                />
+              ))}
+            </div>
           </motion.div>
         )}
 

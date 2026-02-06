@@ -484,14 +484,16 @@ describe("PlayScreen", () => {
       expect(screen.getByText("2 + 3 = ?")).toBeInTheDocument();
     });
 
-    // Mock explain API + pre-fetch for second wrong answer
-    mockFetchExplanation();
+    // Mock pre-fetch + explain API for second wrong answer
+    // prefetchProblem is called first (non-blocking), then explain API
     mockFetchProblem();
+    mockFetchExplanation();
 
-    // Second wrong answer → WRONG state (with AI explanation)
+    // Second wrong answer → WRONG state (explanation loads async)
     await user.click(screen.getByRole("button", { name: "4" }));
     await user.click(screen.getByRole("button", { name: /submit/i }));
 
+    // Explanation should appear
     await waitFor(() => {
       expect(screen.getByText("You can do it!")).toBeInTheDocument();
     });
