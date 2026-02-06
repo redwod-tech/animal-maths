@@ -50,7 +50,8 @@ export async function POST(req: Request) {
     });
     const problem: Problem = JSON.parse(raw);
     return jsonResponse(problem);
-  } catch {
+  } catch (error) {
+    console.error("Problem generation failed:", error);
     return jsonResponse(FALLBACK_PROBLEMS[section as MathSection]);
   }
 }
