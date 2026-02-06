@@ -36,6 +36,7 @@ class MockUtterance {
   text: string;
   rate = 1;
   pitch = 1;
+  voice: unknown = null;
   constructor(text: string) {
     this.text = text;
   }
@@ -45,6 +46,7 @@ describe("tts (ElevenLabs-first with fallback)", () => {
   let mockSpeechSynthesis: {
     speak: ReturnType<typeof vi.fn>;
     cancel: ReturnType<typeof vi.fn>;
+    getVoices: ReturnType<typeof vi.fn>;
     speaking: boolean;
   };
 
@@ -52,6 +54,10 @@ describe("tts (ElevenLabs-first with fallback)", () => {
     mockSpeechSynthesis = {
       speak: vi.fn(),
       cancel: vi.fn(),
+      getVoices: vi.fn().mockReturnValue([
+        { name: "Google US English", lang: "en-US" },
+        { name: "Default", lang: "en-US" },
+      ]),
       speaking: false,
     };
     vi.stubGlobal("speechSynthesis", mockSpeechSynthesis);
@@ -114,6 +120,20 @@ describe("tts (ElevenLabs-first with fallback)", () => {
       await speakText("Fallback text");
 
       expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
+    });
+
+    it("uses best available voice and kid-friendly settings for fallback", async () => {
+      (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      await speakText("Fallback text");
+
+      const utterance = mockSpeechSynthesis.speak.mock.calls[0][0] as MockUtterance;
+      expect(utterance.voice).toEqual({ name: "Google US English", lang: "en-US" });
+      expect(utterance.rate).toBe(0.85);
+      expect(utterance.pitch).toBe(1.1);
     });
   });
 

@@ -45,6 +45,8 @@ export class AudioQueue {
       this.playNext();
     };
 
-    audio.play();
+    audio.play().catch(() => {
+      this.playNext();
+    });
   }
 }

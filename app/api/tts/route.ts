@@ -49,9 +49,11 @@ export async function POST(request: Request) {
         "Content-Length": String(buffer.byteLength),
       },
     });
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("TTS generation failed:", message);
     return NextResponse.json(
-      { error: "TTS generation failed" },
+      { error: "TTS generation failed", detail: message },
       { status: 500 }
     );
   }

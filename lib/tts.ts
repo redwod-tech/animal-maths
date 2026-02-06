@@ -19,9 +19,42 @@ async function fetchTtsAudio(text: string): Promise<string | null> {
   }
 }
 
+let cachedVoice: SpeechSynthesisVoice | null = null;
+
+function getBestVoice(): SpeechSynthesisVoice | null {
+  if (cachedVoice) return cachedVoice;
+  const voices = speechSynthesis.getVoices();
+  // Prefer natural-sounding voices available in Chrome/Safari
+  const preferred = [
+    "Google US English",
+    "Google UK English Female",
+    "Samantha",          // macOS / iOS
+    "Karen",             // macOS / iOS
+    "Microsoft Zira",    // Windows
+    "Microsoft Jenny",   // Windows
+  ];
+  for (const name of preferred) {
+    const match = voices.find((v) => v.name === name);
+    if (match) {
+      cachedVoice = match;
+      return match;
+    }
+  }
+  // Fallback: any English voice
+  const english = voices.find((v) => v.lang.startsWith("en"));
+  if (english) {
+    cachedVoice = english;
+    return english;
+  }
+  return null;
+}
+
 function speakViaWebSpeech(text: string): void {
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.9;
+  const voice = getBestVoice();
+  if (voice) utterance.voice = voice;
+  utterance.rate = 0.85;
+  utterance.pitch = 1.1;
   speechSynthesis.speak(utterance);
 }
 
