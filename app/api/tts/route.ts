@@ -40,8 +40,9 @@ export async function POST(request: Request) {
     });
 
     const buffer = await streamToBuffer(audioStream);
+    const uint8 = new Uint8Array(buffer);
 
-    return new Response(buffer, {
+    return new Response(uint8, {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
