@@ -12,13 +12,13 @@ const VALID_SECTIONS: MathSection[] = [
 const VALID_LEVELS: DifficultyLevel[] = [1, 2, 3];
 
 const FALLBACK_PROBLEMS: Record<MathSection, Problem> = {
-  addition: { question: "1 + 1 = ?", answer: 2, hint: "Count on your fingers!" },
-  subtraction: { question: "3 - 1 = ?", answer: 2, hint: "Take away one!" },
-  multiplication: { question: "2 × 1 = ?", answer: 2, hint: "Two groups of one!" },
+  addition: { question: "47 + 83 = ?", answer: 130, hint: "Add the ones first, then the tens!" },
+  subtraction: { question: "83 - 47 = ?", answer: 36, hint: "Subtract the ones first, then the tens!" },
+  multiplication: { question: "34 × 7 = ?", answer: 238, hint: "Break it into 30×7 and 4×7!" },
   "skip-counting": {
-    question: "Count by 2s: 2, 4, ?",
-    answer: 6,
-    hint: "Add 2 more!",
+    question: "12, 15, 18, ?",
+    answer: 21,
+    hint: "Count by 3s!",
   },
 };
 
