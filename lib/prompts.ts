@@ -1,49 +1,66 @@
 import { MathSection, DifficultyLevel } from "@/types";
 
-const LEVEL_DESCRIPTIONS: Record<MathSection, Record<DifficultyLevel, string>> = {
-  addition: {
-    1: "Add two numbers, each between 10 and 100 (two-digit numbers). Example: 47 + 83",
-    2: "Add two or three numbers, each between 100 and 999 (three-digit numbers). Example: 372 + 263",
-    3: "Add two or three numbers, each between 100 and 999 (three-digit numbers), with carrying. Example: 372 + 263 + 873",
-    4: "Add three or four 3-digit numbers (100-999) with carries. Example: 487 + 653 + 291",
-    5: "Add two 4-digit numbers (1000-9999). Example: 3456 + 7891",
-  },
-  subtraction: {
-    1: "Subtract two numbers, each between 10 and 100 (two-digit numbers). The result must be positive. Example: 83 - 47",
-    2: "Subtract two numbers, each between 100 and 999 (three-digit numbers). The result must be positive. Example: 847 - 263",
-    3: "Subtract two numbers, each between 100 and 999 (three-digit numbers), with borrowing. Example: 903 - 467",
-    4: "Subtract with borrows across zeros. The first number should contain zeros (e.g. 1000, 3004). The result must be positive. Example: 1000 - 467",
-    5: "Subtract two 4-digit numbers (1000-9999). The result must be positive. Example: 8234 - 5671",
-  },
-  multiplication: {
-    1: "Multiply a two-digit number (10-99) by a one-digit number (2-9). Example: 34 × 7",
-    2: "Multiply two two-digit numbers, each between 10 and 99 (three-digit products). Example: 23 × 45",
-    3: "Multiply a three-digit number (100-999) by a one-digit number (2-9). Example: 372 × 8",
-    4: "Multiply two 2-digit numbers where the product is 1000 or more. Example: 47 × 38",
-    5: "Multiply a 3-digit number (100-999) by a 2-digit number (10-99). Example: 234 × 56",
-  },
-  "skip-counting": {
-    1: "Count by 3s, 4s, or 5s starting from a two-digit number. Give 3 numbers in the sequence, ask for the 4th. Example: 12, 15, 18, ?",
-    2: "Count by 6s, 7s, or 8s starting from a two-digit number. Give 3 numbers in the sequence, ask for the 4th. Example: 24, 31, 38, ?",
-    3: "Count by 9s, 11s, or 12s starting from a three-digit number. Give 3 numbers, ask for the 4th. Example: 108, 119, 130, ?",
-    4: "Count by 13s, 15s, or 17s starting from a two-digit number. Give 3 numbers, ask for the 4th. Example: 22, 35, 48, ?",
-    5: "Count by 25s or 50s starting from a 3-digit number. Give 3 numbers, ask for the 4th. Example: 150, 175, 200, ?",
-  },
-};
+function randInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+export interface RawEquation {
+  equation: string;
+  answer: number;
+}
+
+export function generateEquation(section: MathSection, level: DifficultyLevel): RawEquation {
+  switch (section) {
+    case "addition": {
+      if (level === 1) { const a = randInt(10, 99), b = randInt(10, 99); return { equation: `${a} + ${b}`, answer: a + b }; }
+      if (level === 2) { const a = randInt(100, 999), b = randInt(100, 999); return { equation: `${a} + ${b}`, answer: a + b }; }
+      if (level === 3) { const a = randInt(100, 999), b = randInt(100, 999), c = randInt(100, 999); return { equation: `${a} + ${b} + ${c}`, answer: a + b + c }; }
+      if (level === 4) { const a = randInt(100, 999), b = randInt(100, 999), c = randInt(100, 999); return { equation: `${a} + ${b} + ${c}`, answer: a + b + c }; }
+      { const a = randInt(1000, 9999), b = randInt(1000, 9999); return { equation: `${a} + ${b}`, answer: a + b }; }
+    }
+    case "subtraction": {
+      if (level === 1) { const a = randInt(50, 99), b = randInt(10, 49); return { equation: `${a} - ${b}`, answer: a - b }; }
+      if (level === 2) { const a = randInt(500, 999), b = randInt(100, 499); return { equation: `${a} - ${b}`, answer: a - b }; }
+      if (level === 3) { const a = randInt(500, 999), b = randInt(100, 499); return { equation: `${a} - ${b}`, answer: a - b }; }
+      if (level === 4) { const a = pick([1000, 2000, 3000, 4000, 5000, 3004, 5003, 6001]); const b = randInt(100, a - 1); return { equation: `${a} - ${b}`, answer: a - b }; }
+      { const a = randInt(5000, 9999), b = randInt(1000, 4999); return { equation: `${a} - ${b}`, answer: a - b }; }
+    }
+    case "multiplication": {
+      if (level === 1) { const a = randInt(10, 99), b = randInt(2, 9); return { equation: `${a} × ${b}`, answer: a * b }; }
+      if (level === 2) { const a = randInt(10, 99), b = randInt(10, 99); return { equation: `${a} × ${b}`, answer: a * b }; }
+      if (level === 3) { const a = randInt(100, 999), b = randInt(2, 9); return { equation: `${a} × ${b}`, answer: a * b }; }
+      if (level === 4) { let a: number, b: number; do { a = randInt(20, 99); b = randInt(20, 99); } while (a * b < 1000); return { equation: `${a} × ${b}`, answer: a * b }; }
+      { const a = randInt(100, 999), b = randInt(10, 99); return { equation: `${a} × ${b}`, answer: a * b }; }
+    }
+    case "skip-counting": {
+      const skipOptions: Record<DifficultyLevel, number[]> = {
+        1: [3, 4, 5], 2: [6, 7, 8], 3: [9, 11, 12], 4: [13, 15, 17], 5: [25, 50],
+      };
+      const skipBy = pick(skipOptions[level]);
+      const minStart = level >= 3 ? 100 : 10;
+      const maxStart = level >= 3 ? 500 : 90;
+      const start = randInt(minStart, maxStart);
+      const seq = [start, start + skipBy, start + 2 * skipBy];
+      return { equation: `${seq.join(", ")}, ?`, answer: start + 3 * skipBy };
+    }
+  }
+}
 
 export function buildProblemPrompt(
   section: MathSection,
   level: DifficultyLevel
 ): string {
-  const description = LEVEL_DESCRIPTIONS[section][level];
+  const eq = generateEquation(section, level);
 
   return [
-    `Generate a ${section} math problem.`,
-    `Difficulty: ${description}`,
-    `IMPORTANT: Generate a UNIQUE problem with RANDOM numbers. Do NOT repeat the example. Use different numbers every time.`,
-    `Theme: arctic penguins (brief, fun context).`,
-    `Respond ONLY with JSON: { "question": "<equation> = ?", "answer": <number>, "hint": "<short hint>" }`,
-    `The question should show the math equation clearly (e.g. "372 + 263 = ?").`,
+    `Create a brief arctic penguin-themed math question.`,
+    `You MUST use this EXACT equation: ${eq.equation} = ?`,
+    `The correct answer is ${eq.answer}.`,
+    `Respond ONLY with JSON: { "question": "<themed question ending with the equation>", "answer": ${eq.answer}, "hint": "<short hint>" }`,
   ].join("\n");
 }
 

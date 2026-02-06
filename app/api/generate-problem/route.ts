@@ -44,9 +44,9 @@ export async function POST(req: Request) {
   try {
     const prompt = buildProblemPrompt(section, level);
     const raw = await callOpenRouter({
-      systemPrompt: "You are a math problem generator for kids. Always use different random numbers each time.",
-      userPrompt: prompt + `\nSeed: ${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      temperature: 1.0,
+      systemPrompt: "You are a math problem generator for kids. Wrap the given equation in a fun, brief penguin-themed story.",
+      userPrompt: prompt,
+      temperature: 0.8,
     });
     const problem: Problem = JSON.parse(raw);
     return jsonResponse(problem);
