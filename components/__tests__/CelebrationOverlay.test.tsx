@@ -3,6 +3,16 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 
+// Mock sound-effects module
+vi.mock("@/lib/sound-effects", () => ({
+  playCelebrateSound: vi.fn(),
+  playCorrectSound: vi.fn(),
+  playWrongSound: vi.fn(),
+  unlockAudio: vi.fn(),
+}));
+
+import { playCelebrateSound } from "@/lib/sound-effects";
+
 describe("CelebrationOverlay", () => {
   it("renders celebration message", () => {
     render(<CelebrationOverlay tokens={5} onDismiss={vi.fn()} />);
@@ -30,6 +40,12 @@ describe("CelebrationOverlay", () => {
       vi.advanceTimersByTime(3000);
       expect(onDismiss).toHaveBeenCalledOnce();
     });
+  });
+
+  it("plays celebrate sound on mount", () => {
+    vi.mocked(playCelebrateSound).mockClear();
+    render(<CelebrationOverlay tokens={5} onDismiss={vi.fn()} />);
+    expect(playCelebrateSound).toHaveBeenCalledOnce();
   });
 
   it("is dismissible on click/tap", async () => {

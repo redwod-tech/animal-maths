@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import type { MathSection, PlayState, Problem, ExplanationResponse } from "@/types";
 import { useSession } from "@/hooks/useSession";
 import { updateDifficulty } from "@/lib/difficulty";
-import { REWARD_AMOUNTS } from "@/lib/constants";
+import { REWARD_AMOUNTS, SPOKEN_ENCOURAGEMENTS } from "@/lib/constants";
+import { playCorrectSound, playWrongSound, unlockAudio } from "@/lib/sound-effects";
+import { speakText, speakSteps, stopSpeaking, isSpeechSupported } from "@/lib/tts";
 import NumberPad from "@/components/NumberPad";
 import { ProblemCard } from "@/components/ProblemCard";
 import { ExplanationCard } from "@/components/ExplanationCard";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import TokenCounter from "@/components/TokenCounter";
-import { speakSteps, stopSpeaking, isSpeechSupported } from "@/lib/tts";
+import { StreakCounter } from "@/components/StreakCounter";
+import { LevelIndicator } from "@/components/LevelIndicator";
 
 interface PlayScreenProps {
   section: MathSection;
@@ -28,6 +32,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
   const [rewardTokens, setRewardTokens] = useState(0);
   const [nextLevel, setNextLevel] = useState<number | null>(null);
   const nextProblemRef = useRef<Problem | null>(null);
+  const audioUnlockedRef = useRef(false);
 
   const difficulty = session.sections[section];
 
@@ -76,6 +81,10 @@ export default function PlayScreen({ section }: PlayScreenProps) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDigit = useCallback((digit: number) => {
+    if (!audioUnlockedRef.current) {
+      audioUnlockedRef.current = true;
+      unlockAudio();
+    }
     setAnswer((prev) => prev + String(digit));
   }, []);
 
@@ -101,12 +110,18 @@ export default function PlayScreen({ section }: PlayScreenProps) {
 
       setPlayState("CORRECT");
       prefetchProblem(newDifficulty.level);
+
+      // Play correct sound + speak random encouragement
+      playCorrectSound();
+      const encouragement = SPOKEN_ENCOURAGEMENTS[Math.floor(Math.random() * SPOKEN_ENCOURAGEMENTS.length)];
+      speakText(encouragement);
     } else if (!isRetry) {
       // First wrong answer — instant retry, no API call
       setStreak(0);
       const newDifficulty = updateDifficulty(difficulty, false);
       updateSection(section, newDifficulty);
       setPlayState("FIRST_WRONG");
+      playWrongSound();
     } else {
       // Second wrong answer — call explain API
       try {
@@ -189,6 +204,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
   if (playState === "LOADING") {
     return (
       <div className="min-h-dvh bg-gradient-to-b from-ice-100 to-ice-200 flex flex-col items-center justify-center">
+        <div className="snowflake-spinner text-4xl mb-3">❄️</div>
         <p className="text-xl text-arctic-700">Loading...</p>
       </div>
     );
@@ -209,14 +225,17 @@ export default function PlayScreen({ section }: PlayScreenProps) {
         <TokenCounter tokens={session.tokens} />
       </div>
 
+      {/* Level indicator */}
+      <div className="flex justify-center px-4 pb-1">
+        <LevelIndicator
+          level={difficulty.level}
+          consecutiveCorrect={difficulty.consecutiveCorrect}
+          section={section}
+        />
+      </div>
+
       {/* Streak */}
-      {streak > 0 && (
-        <div className="text-center">
-          <span className="text-arctic-700 font-semibold">
-            Streak: {streak}
-          </span>
-        </div>
-      )}
+      <StreakCounter streak={streak} />
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4">
@@ -232,7 +251,12 @@ export default function PlayScreen({ section }: PlayScreenProps) {
         )}
 
         {playState === "FIRST_WRONG" && problem && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto text-center"
+          >
             <p className="text-2xl font-bold text-orange-500 mb-2">
               Oops! That&apos;s not right.
             </p>
@@ -243,7 +267,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
             >
               Try Again
             </button>
-          </div>
+          </motion.div>
         )}
 
         {playState === "WRONG" && explanation && (

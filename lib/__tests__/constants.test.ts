@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { SHOP_ITEMS, SECTIONS, REWARD_AMOUNTS } from "@/lib/constants";
+import {
+  SHOP_ITEMS,
+  SECTIONS,
+  REWARD_AMOUNTS,
+  CATEGORY_ORDER,
+  CATEGORY_LABELS,
+  getShopItemById,
+} from "@/lib/constants";
 import type { CosmeticCategory } from "@/types";
 
 describe("SHOP_ITEMS", () => {
@@ -49,6 +56,38 @@ describe("SECTIONS", () => {
     expect(skipCounting).toBeDefined();
     expect(skipCounting!.name).toBe("Skip Counting");
     expect(skipCounting!.emoji).toBe("🔢");
+  });
+});
+
+describe("CATEGORY_ORDER", () => {
+  it("contains all three categories in correct order", () => {
+    expect(CATEGORY_ORDER).toEqual(["hat", "scarf", "background"]);
+  });
+});
+
+describe("CATEGORY_LABELS", () => {
+  it("maps each category to its display label", () => {
+    expect(CATEGORY_LABELS.hat).toBe("Hats");
+    expect(CATEGORY_LABELS.scarf).toBe("Scarves");
+    expect(CATEGORY_LABELS.background).toBe("Backgrounds");
+  });
+});
+
+describe("getShopItemById", () => {
+  it("returns item when ID exists", () => {
+    const item = getShopItemById("arctic-explorer-hat");
+    expect(item).toBeDefined();
+    expect(item!.name).toBe("Arctic Explorer Hat");
+    expect(item!.category).toBe("hat");
+  });
+
+  it("returns undefined for non-existent ID", () => {
+    expect(getShopItemById("nonexistent")).toBeUndefined();
+  });
+
+  it("finds items from each category", () => {
+    expect(getShopItemById("snowflake-scarf")?.category).toBe("scarf");
+    expect(getShopItemById("northern-lights")?.category).toBe("background");
   });
 });
 

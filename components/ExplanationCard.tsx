@@ -1,11 +1,23 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 interface ExplanationCardProps {
   steps: string[];
   encouragement: string;
   onTryAgain: () => void;
   onReadAloud: () => void;
 }
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 },
+};
+
+const stepVariants = {
+  hidden: { opacity: 0, x: -10 },
+  show: { opacity: 1, x: 0 },
+};
 
 export function ExplanationCard({
   steps,
@@ -14,9 +26,18 @@ export function ExplanationCard({
   onReadAloud,
 }: ExplanationCardProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto">
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="show"
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto"
+    >
       <div className="flex items-center gap-3 mb-4">
-        <img
+        <motion.img
+          initial={{ rotate: -10 }}
+          animate={{ rotate: [0, -5, 5, 0] }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           src="/images/penguin-teacher.png"
           alt="Penguin teacher"
           className="w-16 h-16"
@@ -24,11 +45,21 @@ export function ExplanationCard({
         <h2 className="text-xl font-bold text-gray-800">Let me explain!</h2>
       </div>
 
-      <ol className="list-decimal list-inside space-y-2 mb-4">
+      <ol className="list-none space-y-2 mb-4">
         {steps.map((step, index) => (
-          <li key={index} className="text-gray-700 text-lg">
+          <motion.li
+            key={index}
+            variants={stepVariants}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: 0.15 * (index + 1) }}
+            className="flex items-start gap-2 text-gray-700 text-lg"
+          >
+            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm flex items-center justify-center mt-0.5">
+              {index + 1}
+            </span>
             {step}
-          </li>
+          </motion.li>
         ))}
       </ol>
 
@@ -50,6 +81,6 @@ export function ExplanationCard({
           Try Again
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

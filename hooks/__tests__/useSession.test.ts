@@ -108,6 +108,38 @@ describe("useSession", () => {
     expect(parsed.userName).toBe("Ava");
   });
 
+  it("unequipItem: sets equipped slot to null", () => {
+    const { result } = renderHook(() => useSession());
+
+    // First equip an item
+    act(() => {
+      result.current.equipItem("crown", "hat");
+    });
+    expect(result.current.session.equipped.hat).toBe("crown");
+
+    // Now unequip it
+    act(() => {
+      result.current.unequipItem("hat");
+    });
+    expect(result.current.session.equipped.hat).toBeNull();
+  });
+
+  it("unequipItem: persists to localStorage", () => {
+    const { result } = renderHook(() => useSession());
+
+    act(() => {
+      result.current.equipItem("crown", "hat");
+    });
+
+    act(() => {
+      result.current.unequipItem("hat");
+    });
+
+    const stored = store[SESSION_KEY];
+    const parsed = JSON.parse(stored);
+    expect(parsed.equipped.hat).toBeNull();
+  });
+
   it("persists changes to localStorage", () => {
     const { result } = renderHook(() => useSession());
 

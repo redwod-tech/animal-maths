@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "@/hooks/useSession";
 import { SECTIONS } from "@/lib/constants";
 import { SectionCard } from "@/components/SectionCard";
+import { PenguinAvatar } from "@/components/PenguinAvatar";
 import TokenCounter from "@/components/TokenCounter";
 
 export default function HomeScreen() {
@@ -27,13 +28,7 @@ export default function HomeScreen() {
 
       {/* Penguin avatar */}
       <div className="flex flex-col items-center mb-8">
-        <img
-          src="/images/penguin.png"
-          alt="penguin avatar"
-          width={120}
-          height={120}
-          className="drop-shadow-lg"
-        />
+        <PenguinAvatar equipped={session.equipped} size="lg" />
         {session.userName ? (
           <h1 className="text-3xl font-bold text-arctic-800 mt-4">
             Welcome, {session.userName}!
@@ -77,6 +72,14 @@ export default function HomeScreen() {
           />
         ))}
       </div>
+
+      {/* My Collection link */}
+      <Link
+        href="/collections"
+        className="px-8 py-3 rounded-2xl bg-arctic-600 text-white font-bold text-lg hover:bg-arctic-700 transition-colors shadow-md mb-4"
+      >
+        My Collection
+      </Link>
 
       {/* Shop link */}
       <Link

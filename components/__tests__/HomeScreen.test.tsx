@@ -31,6 +31,7 @@ vi.mock("@/hooks/useSession", () => ({
     updateSection: vi.fn(),
     purchaseItem: vi.fn(),
     equipItem: vi.fn(),
+    unequipItem: vi.fn(),
     setUserName: mockSetUserName,
   }),
 }));
@@ -62,8 +63,16 @@ describe("HomeScreen", () => {
 
   it("renders shop link", () => {
     render(<HomeScreen />);
-    const shopLink = screen.getByRole("link", { name: /shop/i });
+    const shopLink = screen.getByRole("link", { name: /^shop$/i });
     expect(shopLink).toHaveAttribute("href", "/shop");
+  });
+
+  it("renders My Collection link", () => {
+    render(<HomeScreen />);
+    const collectionLink = screen.getByRole("link", {
+      name: /my collection/i,
+    });
+    expect(collectionLink).toHaveAttribute("href", "/collections");
   });
 
   it("section cards link to correct routes", () => {

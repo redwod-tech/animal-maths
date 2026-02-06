@@ -4,6 +4,25 @@ import userEvent from "@testing-library/user-event";
 import PlayScreen from "@/components/PlayScreen";
 import { SESSION_KEY, defaultSession } from "@/lib/session";
 
+// Mock sound-effects module
+vi.mock("@/lib/sound-effects", () => ({
+  playCorrectSound: vi.fn(),
+  playWrongSound: vi.fn(),
+  playCelebrateSound: vi.fn(),
+  unlockAudio: vi.fn(),
+}));
+
+// Mock tts module
+vi.mock("@/lib/tts", () => ({
+  speakText: vi.fn().mockResolvedValue(undefined),
+  speakSteps: vi.fn().mockResolvedValue(undefined),
+  stopSpeaking: vi.fn(),
+  isSpeechSupported: vi.fn().mockReturnValue(true),
+}));
+
+import { playCorrectSound, playWrongSound, unlockAudio } from "@/lib/sound-effects";
+import { speakText } from "@/lib/tts";
+
 // Mock localStorage for useSession
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -381,6 +400,64 @@ describe("PlayScreen", () => {
       (call: unknown[]) => typeof call[0] === "string" && call[0].includes("/api/generate-problem")
     );
     expect(finalCalls.length).toBe(2);
+  });
+
+  it("calls unlockAudio on first digit press", async () => {
+    mockFetchProblem();
+    const user = userEvent.setup();
+    render(<PlayScreen section="addition" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 + 3 = ?")).toBeInTheDocument();
+    });
+
+    // Press a digit
+    await user.click(screen.getByRole("button", { name: "5" }));
+
+    expect(unlockAudio).toHaveBeenCalledOnce();
+
+    // Press another digit — should NOT call unlockAudio again
+    await user.click(screen.getByRole("button", { name: "3" }));
+    expect(unlockAudio).toHaveBeenCalledOnce();
+  });
+
+  it("plays correct sound and speaks encouragement on correct answer", async () => {
+    mockFetchProblem();
+    const user = userEvent.setup();
+    render(<PlayScreen section="addition" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 + 3 = ?")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "5" }));
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/great job/i)).toBeInTheDocument();
+    });
+
+    expect(playCorrectSound).toHaveBeenCalledOnce();
+    expect(speakText).toHaveBeenCalledOnce();
+  });
+
+  it("plays wrong sound on first wrong answer", async () => {
+    mockFetchProblem();
+    const user = userEvent.setup();
+    render(<PlayScreen section="addition" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 + 3 = ?")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "4" }));
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/oops/i)).toBeInTheDocument();
+    });
+
+    expect(playWrongSound).toHaveBeenCalledOnce();
   });
 
   it("pre-fetches next problem during WRONG state (after explain API)", async () => {

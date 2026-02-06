@@ -46,3 +46,30 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Snowflake loading spinner */
+.snowflake-spinner {
+  animation: snowflake-spin 1.5s linear infinite;
+}
+
+@keyframes snowflake-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Streak glow for high streaks */
+.streak-glow {
+  text-shadow: 0 0 8px rgba(251, 146, 60, 0.5);
+}
+
+/* Submit button glow */
+.submit-glow {
+  box-shadow: 0 4px 0 0 var(--color-aurora-green), 0 0 12px rgba(74, 222, 128, 0.3);
+}

@@ -8,6 +8,7 @@ export interface UseSessionReturn {
   updateSection: (section: MathSection, state: DifficultyState) => void;
   purchaseItem: (itemId: string, cost: number) => void;
   equipItem: (itemId: string, category: CosmeticCategory) => void;
+  unequipItem: (category: CosmeticCategory) => void;
   setUserName: (name: string) => void;
 }
 
@@ -59,6 +60,17 @@ export function useSession(): UseSessionReturn {
     });
   };
 
+  const unequipItem = (category: CosmeticCategory) => {
+    setSession((prev) => {
+      const next = {
+        ...prev,
+        equipped: { ...prev.equipped, [category]: null },
+      };
+      saveSession(next);
+      return next;
+    });
+  };
+
   const setUserName = (name: string) => {
     setSession((prev) => {
       const next = { ...prev, userName: name };
@@ -73,6 +85,7 @@ export function useSession(): UseSessionReturn {
     updateSection,
     purchaseItem,
     equipItem,
+    unequipItem,
     setUserName,
   };
 }
