@@ -26,19 +26,22 @@ export default function PlayScreen({ section }: PlayScreenProps) {
   const [isRetry, setIsRetry] = useState(false);
   const [explanation, setExplanation] = useState<ExplanationResponse | null>(null);
   const [rewardTokens, setRewardTokens] = useState(0);
+  const [nextLevel, setNextLevel] = useState<number | null>(null);
 
   const difficulty = session.sections[section];
 
-  const fetchProblem = useCallback(async () => {
+  const fetchProblem = useCallback(async (level?: number) => {
     setPlayState("LOADING");
     setAnswer("");
     setExplanation(null);
+
+    const useLevel = level ?? difficulty.level;
 
     try {
       const res = await fetch("/api/generate-problem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, level: difficulty.level }),
+        body: JSON.stringify({ section, level: useLevel }),
       });
 
       if (!res.ok) throw new Error("Failed to generate problem");
@@ -77,6 +80,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
 
       const newDifficulty = updateDifficulty(difficulty, true);
       updateSection(section, newDifficulty);
+      setNextLevel(newDifficulty.level);
 
       setPlayState("CORRECT");
     } else {
@@ -125,8 +129,9 @@ export default function PlayScreen({ section }: PlayScreenProps) {
 
   const handleCelebrationDismiss = useCallback(() => {
     setIsRetry(false);
-    fetchProblem();
-  }, [fetchProblem]);
+    fetchProblem(nextLevel ?? undefined);
+    setNextLevel(null);
+  }, [fetchProblem, nextLevel]);
 
   const handleReadAloud = useCallback(() => {
     if (isSpeechSupported() && explanation) {

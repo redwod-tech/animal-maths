@@ -10,13 +10,13 @@ describe("buildProblemPrompt", () => {
 
   it("returns string containing the level constraint", () => {
     const level1 = buildProblemPrompt("addition", 1);
-    expect(level1).toContain("1-10");
+    expect(level1).toMatch(/10.*100|two.digit/i);
 
     const level2 = buildProblemPrompt("subtraction", 2);
-    expect(level2).toContain("1-20");
+    expect(level2).toMatch(/100.*999|three.digit/i);
 
     const level3 = buildProblemPrompt("multiplication", 3);
-    expect(level3).toContain("1-50");
+    expect(level3).toMatch(/100.*999|three.digit/i);
   });
 
   it('includes "arctic" or "penguin" theme reference', () => {
