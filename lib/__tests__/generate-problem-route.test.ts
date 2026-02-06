@@ -39,12 +39,12 @@ describe("POST /api/generate-problem", () => {
     });
   });
 
-  it("returns valid Problem for each difficulty level (1, 2, 3)", async () => {
+  it("returns valid Problem for each difficulty level (1-5)", async () => {
     mockedCallOpenRouter.mockResolvedValue(
       JSON.stringify({ question: "2 + 3 = ?", answer: 5, hint: "Count on your fingers" })
     );
 
-    for (const level of [1, 2, 3]) {
+    for (const level of [1, 2, 3, 4, 5]) {
       const req = makeRequest({ section: "addition", level });
       const res = await POST(req);
       const data = await res.json();
@@ -54,7 +54,7 @@ describe("POST /api/generate-problem", () => {
       expect(data.answer).toBeTypeOf("number");
     }
 
-    expect(mockedCallOpenRouter).toHaveBeenCalledTimes(3);
+    expect(mockedCallOpenRouter).toHaveBeenCalledTimes(5);
   });
 
   it("rejects invalid section names (400 status)", async () => {
@@ -67,12 +67,24 @@ describe("POST /api/generate-problem", () => {
   });
 
   it("rejects invalid level values (400 status)", async () => {
-    const req = makeRequest({ section: "addition", level: 5 });
+    const req = makeRequest({ section: "addition", level: 6 });
     const res = await POST(req);
 
     expect(res.status).toBe(400);
     const data = await res.json();
     expect(data.error).toBeDefined();
+  });
+
+  it("accepts level 4 and level 5 as valid", async () => {
+    mockedCallOpenRouter.mockResolvedValue(
+      JSON.stringify({ question: "1234 + 5678 = ?", answer: 6912, hint: "Add column by column" })
+    );
+
+    for (const level of [4, 5]) {
+      const req = makeRequest({ section: "addition", level });
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+    }
   });
 
   it("returns fallback problem when OpenRouter fails", async () => {

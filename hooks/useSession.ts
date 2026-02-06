@@ -8,6 +8,7 @@ export interface UseSessionReturn {
   updateSection: (section: MathSection, state: DifficultyState) => void;
   purchaseItem: (itemId: string, cost: number) => void;
   equipItem: (itemId: string, category: CosmeticCategory) => void;
+  setUserName: (name: string) => void;
 }
 
 export function useSession(): UseSessionReturn {
@@ -58,11 +59,20 @@ export function useSession(): UseSessionReturn {
     });
   };
 
+  const setUserName = (name: string) => {
+    setSession((prev) => {
+      const next = { ...prev, userName: name };
+      saveSession(next);
+      return next;
+    });
+  };
+
   return {
     session,
     addTokens,
     updateSection,
     purchaseItem,
     equipItem,
+    setUserName,
   };
 }

@@ -4,6 +4,7 @@ export const SESSION_KEY = "animal-maths-session";
 
 export function defaultSession(): SessionData {
   return {
+    userName: "",
     tokens: 0,
     purchasedItems: [],
     equipped: { hat: null, scarf: null, background: null },
@@ -22,7 +23,7 @@ export function getSession(): SessionData {
     if (raw === null) {
       return defaultSession();
     }
-    return JSON.parse(raw) as SessionData;
+    return { ...defaultSession(), ...JSON.parse(raw) };
   } catch {
     return defaultSession();
   }

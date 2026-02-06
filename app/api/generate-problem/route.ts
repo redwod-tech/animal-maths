@@ -9,7 +9,7 @@ const VALID_SECTIONS: MathSection[] = [
   "skip-counting",
 ];
 
-const VALID_LEVELS: DifficultyLevel[] = [1, 2, 3];
+const VALID_LEVELS: DifficultyLevel[] = [1, 2, 3, 4, 5];
 
 const FALLBACK_PROBLEMS: Record<MathSection, Problem> = {
   addition: { question: "47 + 83 = ?", answer: 130, hint: "Add the ones first, then the tens!" },

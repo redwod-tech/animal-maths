@@ -3,7 +3,7 @@ import { DifficultyState } from "@/types";
 import { updateDifficulty } from "@/lib/difficulty";
 
 function makeState(
-  level: 1 | 2 | 3,
+  level: 1 | 2 | 3 | 4 | 5,
   consecutiveCorrect: number,
   consecutiveWrong: number
 ): DifficultyState {
@@ -23,9 +23,33 @@ describe("updateDifficulty", () => {
     expect(result.level).toBe(3);
   });
 
-  it("stays at level 3 after 5 correct in a row (cap)", () => {
+  it("promotes from level 3 to level 4 after 5 correct in a row", () => {
     const state = makeState(3, 4, 0);
     const result = updateDifficulty(state, true);
+    expect(result.level).toBe(4);
+  });
+
+  it("promotes from level 4 to level 5 after 5 correct in a row", () => {
+    const state = makeState(4, 4, 0);
+    const result = updateDifficulty(state, true);
+    expect(result.level).toBe(5);
+  });
+
+  it("stays at level 5 after 5 correct in a row (cap)", () => {
+    const state = makeState(5, 4, 0);
+    const result = updateDifficulty(state, true);
+    expect(result.level).toBe(5);
+  });
+
+  it("demotes from level 5 to level 4 after 3 wrong in a row", () => {
+    const state = makeState(5, 0, 2);
+    const result = updateDifficulty(state, false);
+    expect(result.level).toBe(4);
+  });
+
+  it("demotes from level 4 to level 3 after 3 wrong in a row", () => {
+    const state = makeState(4, 0, 2);
+    const result = updateDifficulty(state, false);
     expect(result.level).toBe(3);
   });
 

@@ -1,6 +1,6 @@
 export type MathSection = "addition" | "subtraction" | "multiplication" | "skip-counting";
 
-export type DifficultyLevel = 1 | 2 | 3;
+export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
 export interface DifficultyState {
   level: DifficultyLevel;
@@ -37,6 +37,7 @@ export interface SectionData {
 }
 
 export interface SessionData {
+  userName: string;
   tokens: number;
   purchasedItems: string[];
   equipped: Record<CosmeticCategory, string | null>;
@@ -47,6 +48,7 @@ export type PlayState =
   | "LOADING"
   | "ANSWERING"
   | "CORRECT"
+  | "FIRST_WRONG"
   | "WRONG"
   | "RETRYING"
   | "EXPLAINING";

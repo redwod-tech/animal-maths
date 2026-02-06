@@ -93,6 +93,21 @@ describe("useSession", () => {
     expect(result.current.session.purchasedItems).toEqual([]);
   });
 
+  it("setUserName: updates and persists userName", () => {
+    const { result } = renderHook(() => useSession());
+
+    act(() => {
+      result.current.setUserName("Ava");
+    });
+
+    expect(result.current.session.userName).toBe("Ava");
+
+    // Check it persisted
+    const stored = store[SESSION_KEY];
+    const parsed = JSON.parse(stored);
+    expect(parsed.userName).toBe("Ava");
+  });
+
   it("persists changes to localStorage", () => {
     const { result } = renderHook(() => useSession());
 

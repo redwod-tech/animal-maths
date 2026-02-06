@@ -40,6 +40,24 @@ describe("buildProblemPrompt", () => {
     }
   });
 
+  it("returns valid constraints for level 4 across all sections", () => {
+    const sections: MathSection[] = ["addition", "subtraction", "multiplication", "skip-counting"];
+    for (const section of sections) {
+      const result = buildProblemPrompt(section, 4);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result.toLowerCase()).toContain(section);
+    }
+  });
+
+  it("returns valid constraints for level 5 across all sections", () => {
+    const sections: MathSection[] = ["addition", "subtraction", "multiplication", "skip-counting"];
+    for (const section of sections) {
+      const result = buildProblemPrompt(section, 5);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result.toLowerCase()).toContain(section);
+    }
+  });
+
   it("asks for JSON response with question, answer, and hint", () => {
     const result = buildProblemPrompt("addition", 1);
     const lower = result.toLowerCase();

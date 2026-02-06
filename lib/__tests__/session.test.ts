@@ -36,6 +36,11 @@ describe("session", () => {
   });
 
   describe("defaultSession", () => {
+    it("has userName as empty string", () => {
+      const session = defaultSession();
+      expect(session.userName).toBe("");
+    });
+
     it("has 0 tokens, no equipped items, all sections at level 1", () => {
       const session = defaultSession();
 
@@ -71,6 +76,7 @@ describe("session", () => {
 
     it("returns parsed session from localStorage", () => {
       const customSession: SessionData = {
+        userName: "Ava",
         tokens: 42,
         purchasedItems: ["crown"],
         equipped: { hat: "crown", scarf: null, background: null },
@@ -85,6 +91,25 @@ describe("session", () => {
 
       const session = getSession();
       expect(session).toEqual(customSession);
+    });
+
+    it("merges defaults for old sessions missing userName", () => {
+      const oldSession = {
+        tokens: 42,
+        purchasedItems: ["crown"],
+        equipped: { hat: "crown", scarf: null, background: null },
+        sections: {
+          addition: { level: 2, consecutiveCorrect: 3, consecutiveWrong: 0 },
+          subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+        },
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(oldSession));
+
+      const session = getSession();
+      expect(session.userName).toBe("");
+      expect(session.tokens).toBe(42);
     });
 
     it("handles corrupted localStorage gracefully (returns default)", () => {
@@ -108,6 +133,7 @@ describe("session", () => {
 
     it("can be read back by getSession", () => {
       const session: SessionData = {
+        userName: "Ava",
         tokens: 99,
         purchasedItems: ["tophat", "blue-bg"],
         equipped: { hat: "tophat", scarf: null, background: "blue-bg" },

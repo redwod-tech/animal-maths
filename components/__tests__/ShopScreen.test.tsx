@@ -9,6 +9,7 @@ const mockEquipItem = vi.fn();
 vi.mock("@/hooks/useSession", () => ({
   useSession: () => ({
     session: {
+      userName: "",
       tokens: 10,
       purchasedItems: ["snowflake-scarf"],
       equipped: { hat: null, scarf: null, background: null },
@@ -27,6 +28,7 @@ vi.mock("@/hooks/useSession", () => ({
     updateSection: vi.fn(),
     purchaseItem: mockPurchaseItem,
     equipItem: mockEquipItem,
+    setUserName: vi.fn(),
   }),
 }));
 

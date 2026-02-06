@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { MathSection, PlayState, Problem, ExplanationResponse } from "@/types";
 import { useSession } from "@/hooks/useSession";
 import { updateDifficulty } from "@/lib/difficulty";
@@ -27,6 +27,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
   const [explanation, setExplanation] = useState<ExplanationResponse | null>(null);
   const [rewardTokens, setRewardTokens] = useState(0);
   const [nextLevel, setNextLevel] = useState<number | null>(null);
+  const nextProblemRef = useRef<Problem | null>(null);
 
   const difficulty = session.sections[section];
 
@@ -51,6 +52,22 @@ export default function PlayScreen({ section }: PlayScreenProps) {
       setPlayState("ANSWERING");
     } catch {
       // Stay in loading on error; could add error state later
+    }
+  }, [section, difficulty.level]);
+
+  const prefetchProblem = useCallback(async (level?: number) => {
+    const useLevel = level ?? difficulty.level;
+    try {
+      const res = await fetch("/api/generate-problem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, level: useLevel }),
+      });
+      if (res.ok) {
+        nextProblemRef.current = await res.json();
+      }
+    } catch {
+      // Pre-fetch failure is non-critical
     }
   }, [section, difficulty.level]);
 
@@ -83,8 +100,15 @@ export default function PlayScreen({ section }: PlayScreenProps) {
       setNextLevel(newDifficulty.level);
 
       setPlayState("CORRECT");
+      prefetchProblem(newDifficulty.level);
+    } else if (!isRetry) {
+      // First wrong answer — instant retry, no API call
+      setStreak(0);
+      const newDifficulty = updateDifficulty(difficulty, false);
+      updateSection(section, newDifficulty);
+      setPlayState("FIRST_WRONG");
     } else {
-      // Wrong answer
+      // Second wrong answer — call explain API
       try {
         const res = await fetch("/api/explain", {
           method: "POST",
@@ -117,8 +141,9 @@ export default function PlayScreen({ section }: PlayScreenProps) {
       updateSection(section, newDifficulty);
 
       setPlayState("WRONG");
+      prefetchProblem(newDifficulty.level);
     }
-  }, [problem, answer, isRetry, difficulty, section, addTokens, updateSection]);
+  }, [problem, answer, isRetry, difficulty, section, addTokens, updateSection, prefetchProblem]);
 
   const handleTryAgain = useCallback(() => {
     setAnswer("");
@@ -127,10 +152,31 @@ export default function PlayScreen({ section }: PlayScreenProps) {
     setPlayState("ANSWERING");
   }, []);
 
+  const handleNextProblem = useCallback(() => {
+    setIsRetry(false);
+    if (nextProblemRef.current) {
+      setProblem(nextProblemRef.current);
+      nextProblemRef.current = null;
+      setAnswer("");
+      setExplanation(null);
+      setPlayState("ANSWERING");
+    } else {
+      fetchProblem();
+    }
+  }, [fetchProblem]);
+
   const handleCelebrationDismiss = useCallback(() => {
     setIsRetry(false);
-    fetchProblem(nextLevel ?? undefined);
     setNextLevel(null);
+    if (nextProblemRef.current) {
+      setProblem(nextProblemRef.current);
+      nextProblemRef.current = null;
+      setAnswer("");
+      setExplanation(null);
+      setPlayState("ANSWERING");
+    } else {
+      fetchProblem(nextLevel ?? undefined);
+    }
   }, [fetchProblem, nextLevel]);
 
   const handleReadAloud = useCallback(() => {
@@ -155,6 +201,11 @@ export default function PlayScreen({ section }: PlayScreenProps) {
         <a href="/" className="text-arctic-700 font-bold text-lg">
           Back
         </a>
+        {session.userName && (
+          <span className="text-arctic-700 font-semibold">
+            {session.userName}
+          </span>
+        )}
         <TokenCounter tokens={session.tokens} />
       </div>
 
@@ -180,11 +231,26 @@ export default function PlayScreen({ section }: PlayScreenProps) {
           </>
         )}
 
+        {playState === "FIRST_WRONG" && problem && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto text-center">
+            <p className="text-2xl font-bold text-orange-500 mb-2">
+              Oops! That&apos;s not right.
+            </p>
+            <p className="text-lg text-gray-700 mb-4">Try again!</p>
+            <button
+              onClick={handleTryAgain}
+              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {playState === "WRONG" && explanation && (
           <ExplanationCard
             steps={explanation.steps}
             encouragement={explanation.encouragement}
-            onTryAgain={handleTryAgain}
+            onTryAgain={handleNextProblem}
             onReadAloud={handleReadAloud}
           />
         )}

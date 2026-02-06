@@ -2,7 +2,7 @@ import { DifficultyLevel, DifficultyState } from "@/types";
 
 const PROMOTE_THRESHOLD = 5;
 const DEMOTE_THRESHOLD = 3;
-const MAX_LEVEL: DifficultyLevel = 3;
+const MAX_LEVEL: DifficultyLevel = 5;
 const MIN_LEVEL: DifficultyLevel = 1;
 
 export function updateDifficulty(

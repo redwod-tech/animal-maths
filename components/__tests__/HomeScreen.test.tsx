@@ -1,32 +1,46 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import HomeScreen from "@/components/HomeScreen";
+
+const mockSetUserName = vi.fn();
+
+const defaultMockSession = {
+  tokens: 10,
+  userName: "Ava",
+  purchasedItems: [],
+  equipped: { hat: null, scarf: null, background: null },
+  sections: {
+    addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+    subtraction: { level: 2, consecutiveCorrect: 0, consecutiveWrong: 0 },
+    multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+    "skip-counting": {
+      level: 3,
+      consecutiveCorrect: 0,
+      consecutiveWrong: 0,
+    },
+  },
+};
+
+let mockSession = { ...defaultMockSession };
 
 vi.mock("@/hooks/useSession", () => ({
   useSession: () => ({
-    session: {
-      tokens: 10,
-      purchasedItems: [],
-      equipped: { hat: null, scarf: null, background: null },
-      sections: {
-        addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
-        subtraction: { level: 2, consecutiveCorrect: 0, consecutiveWrong: 0 },
-        multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
-        "skip-counting": {
-          level: 3,
-          consecutiveCorrect: 0,
-          consecutiveWrong: 0,
-        },
-      },
-    },
+    session: mockSession,
     addTokens: vi.fn(),
     updateSection: vi.fn(),
     purchaseItem: vi.fn(),
     equipItem: vi.fn(),
+    setUserName: mockSetUserName,
   }),
 }));
 
 describe("HomeScreen", () => {
+  beforeEach(() => {
+    mockSession = { ...defaultMockSession };
+    mockSetUserName.mockClear();
+  });
+
   it("renders all 4 section cards", () => {
     render(<HomeScreen />);
     expect(screen.getByText("Addition")).toBeInTheDocument();
@@ -60,5 +74,29 @@ describe("HomeScreen", () => {
     expect(hrefs).toContain("/play/subtraction");
     expect(hrefs).toContain("/play/multiplication");
     expect(hrefs).toContain("/play/skip-counting");
+  });
+
+  it("shows welcome message when userName is set", () => {
+    mockSession = { ...defaultMockSession, userName: "Ava" };
+    render(<HomeScreen />);
+    expect(screen.getByText(/welcome.*ava/i)).toBeInTheDocument();
+  });
+
+  it("shows name input when userName is empty", () => {
+    mockSession = { ...defaultMockSession, userName: "" };
+    render(<HomeScreen />);
+    expect(screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
+  });
+
+  it("saves name when submitted", async () => {
+    mockSession = { ...defaultMockSession, userName: "" };
+    const user = userEvent.setup();
+    render(<HomeScreen />);
+
+    const input = screen.getByPlaceholderText(/name/i);
+    await user.type(input, "Ava");
+    await user.click(screen.getByRole("button", { name: /go|start|save/i }));
+
+    expect(mockSetUserName).toHaveBeenCalledWith("Ava");
   });
 });
