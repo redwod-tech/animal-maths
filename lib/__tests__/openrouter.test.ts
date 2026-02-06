@@ -51,7 +51,7 @@ describe("callOpenRouter", () => {
     const options = callArgs[1] as RequestInit;
     const body = JSON.parse(options.body as string);
 
-    expect(body.model).toBe("anthropic/claude-sonnet-4");
+    expect(body.model).toBe("anthropic/claude-haiku-4-5-20251001");
   });
 
   it("sends system + user messages", async () => {

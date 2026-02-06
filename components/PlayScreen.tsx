@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { MathSection, PlayState, Problem, ExplanationResponse } from "@/types";
 import { useSession } from "@/hooks/useSession";
 import { updateDifficulty } from "@/lib/difficulty";
@@ -201,11 +201,59 @@ export default function PlayScreen({ section }: PlayScreenProps) {
     }
   }, [explanation]);
 
+  const PENGUIN_FACTS = useMemo(() => [
+    "Penguins can hold their breath for 20 minutes!",
+    "Emperor penguins are the tallest of all penguins!",
+    "Penguins slide on their bellies to travel fast!",
+    "A group of penguins is called a colony!",
+    "Penguins can drink salt water!",
+    "Some penguins can jump 6 feet high!",
+  ], []);
+
+  const [loadingFact, setLoadingFact] = useState("");
+  const [loadingDots, setLoadingDots] = useState(0);
+
+  useEffect(() => {
+    if (playState !== "LOADING") return;
+    setLoadingFact(PENGUIN_FACTS[Math.floor(Math.random() * PENGUIN_FACTS.length)]);
+    const dotInterval = setInterval(() => {
+      setLoadingDots((d) => (d + 1) % 4);
+    }, 400);
+    return () => clearInterval(dotInterval);
+  }, [playState, PENGUIN_FACTS]);
+
   if (playState === "LOADING") {
     return (
-      <div className="min-h-dvh bg-gradient-to-b from-ice-100 to-ice-200 flex flex-col items-center justify-center">
-        <div className="snowflake-spinner text-4xl mb-3">❄️</div>
-        <p className="text-xl text-arctic-700">Loading...</p>
+      <div className="min-h-dvh bg-gradient-to-b from-ice-100 to-ice-200 flex flex-col items-center justify-center p-6">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="text-5xl mb-4"
+        >
+          ❄️
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <p className="text-xl font-bold text-arctic-700 mb-2">
+            Loading{".".repeat(loadingDots)}
+          </p>
+          <p className="text-sm text-arctic-500 max-w-xs italic">
+            {loadingFact}
+          </p>
+        </motion.div>
+        <div className="mt-6 flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-3 h-3 rounded-full bg-arctic-400"
+              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+        </div>
       </div>
     );
   }
