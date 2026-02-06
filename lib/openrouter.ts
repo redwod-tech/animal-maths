@@ -51,7 +51,10 @@ export async function callOpenRouter(options: OpenRouterOptions): Promise<string
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    const content: string = data.choices[0].message.content;
+    // Strip markdown code fences (```json ... ```) that models sometimes add
+    const stripped = content.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
+    return stripped;
   } finally {
     clearTimeout(timeoutId);
   }
