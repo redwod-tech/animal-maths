@@ -47,6 +47,11 @@ export function generateEquation(section: MathSection, level: DifficultyLevel): 
       const seq = [start, start + skipBy, start + 2 * skipBy];
       return { equation: `${seq.join(", ")}, ?`, answer: start + 3 * skipBy };
     }
+    case "area-perimeter": {
+      // Use generateGeometryProblem() instead for this section
+      const a = randInt(2, 6), b = randInt(2, 6);
+      return { equation: `${a} × ${b}`, answer: a * b };
+    }
   }
 }
 
