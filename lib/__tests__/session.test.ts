@@ -89,6 +89,10 @@ describe("session", () => {
           "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
           "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
         },
+        multiplicationData: {
+          bestScores: { single: {}, mixed: 0, boss: 0 },
+          missHistory: [],
+        },
       };
       localStorage.setItem(SESSION_KEY, JSON.stringify(customSession));
 
@@ -147,6 +151,10 @@ describe("session", () => {
           "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
           "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
         },
+        multiplicationData: {
+          bestScores: { single: { 5: 18 }, mixed: 12, boss: 0 },
+          missHistory: [],
+        },
       };
 
       saveSession(session);
@@ -165,6 +173,89 @@ describe("session", () => {
 
       expect(reset).toEqual(defaultSession());
       expect(localStorage.getItem(SESSION_KEY)).toBeNull();
+    });
+  });
+
+  describe("multiplicationData backward compatibility", () => {
+    it("defaultSession includes multiplicationData with empty defaults", () => {
+      const session = defaultSession();
+      expect(session.multiplicationData).toEqual({
+        bestScores: { single: {}, mixed: 0, boss: 0 },
+        missHistory: [],
+      });
+    });
+
+    it("getSession deep-merges multiplicationData from stored session", () => {
+      const stored = {
+        userName: "Ava",
+        tokens: 10,
+        purchasedItems: [],
+        equipped: { hat: null, scarf: null, background: null, accessory: null },
+        sections: {
+          addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+        },
+        multiplicationData: {
+          bestScores: { single: { 7: 15 }, mixed: 20, boss: 5 },
+          missHistory: [{ fact: { a: 7, b: 8 }, wrongAnswer: 54, timestamp: 1000 }],
+        },
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(stored));
+
+      const session = getSession();
+      expect(session.multiplicationData).toEqual(stored.multiplicationData);
+    });
+
+    it("getSession provides default multiplicationData when missing from stored session", () => {
+      const oldSession = {
+        userName: "Ava",
+        tokens: 42,
+        purchasedItems: [],
+        equipped: { hat: null, scarf: null, background: null, accessory: null },
+        sections: {
+          addition: { level: 2, consecutiveCorrect: 3, consecutiveWrong: 0 },
+          subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+        },
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(oldSession));
+
+      const session = getSession();
+      expect(session.multiplicationData).toEqual({
+        bestScores: { single: {}, mixed: 0, boss: 0 },
+        missHistory: [],
+      });
+    });
+
+    it("getSession deep-merges partial multiplicationData (e.g. missing bestScores.boss)", () => {
+      const stored = {
+        userName: "Ava",
+        tokens: 10,
+        purchasedItems: [],
+        equipped: { hat: null, scarf: null, background: null, accessory: null },
+        sections: {
+          addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+        },
+        multiplicationData: {
+          bestScores: { single: { 3: 10 } },
+        },
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(stored));
+
+      const session = getSession();
+      expect(session.multiplicationData!.bestScores.single).toEqual({ 3: 10 });
+      expect(session.multiplicationData!.bestScores.mixed).toBe(0);
+      expect(session.multiplicationData!.bestScores.boss).toBe(0);
+      expect(session.multiplicationData!.missHistory).toEqual([]);
     });
   });
 });

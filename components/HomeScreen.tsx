@@ -62,15 +62,27 @@ export default function HomeScreen() {
 
       {/* Section cards grid */}
       <div className="grid grid-cols-2 gap-4 w-full max-w-2xl mb-8">
-        {SECTIONS.map((section) => (
-          <SectionCard
-            key={section.id}
-            id={section.id}
-            name={section.name}
-            emoji={section.emoji}
-            level={session.sections[section.id].level}
-          />
-        ))}
+        {SECTIONS.map((section) => {
+          let subtitle: string | undefined;
+          if (section.id === "multiplication" && session.multiplicationData) {
+            const { bestScores } = session.multiplicationData;
+            const maxSingle = Math.max(0, ...Object.values(bestScores.single));
+            const best = Math.max(maxSingle, bestScores.mixed, bestScores.boss);
+            if (best > 0) {
+              subtitle = `Best: ${best}`;
+            }
+          }
+          return (
+            <SectionCard
+              key={section.id}
+              id={section.id}
+              name={section.name}
+              emoji={section.emoji}
+              level={session.sections[section.id].level}
+              subtitle={subtitle}
+            />
+          );
+        })}
       </div>
 
       {/* My Collection link */}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { SessionData, MathSection, DifficultyState, CosmeticCategory } from "@/types";
+import type { SessionData, MathSection, DifficultyState, CosmeticCategory, MultiplicationSessionData } from "@/types";
 import { getSession, saveSession } from "@/lib/session";
 
 export interface UseSessionReturn {
@@ -10,6 +10,7 @@ export interface UseSessionReturn {
   equipItem: (itemId: string, category: CosmeticCategory) => void;
   unequipItem: (category: CosmeticCategory) => void;
   setUserName: (name: string) => void;
+  updateMultiplicationData: (data: MultiplicationSessionData) => void;
 }
 
 export function useSession(): UseSessionReturn {
@@ -79,6 +80,14 @@ export function useSession(): UseSessionReturn {
     });
   };
 
+  const updateMultiplicationData = (data: MultiplicationSessionData) => {
+    setSession((prev) => {
+      const next = { ...prev, multiplicationData: data };
+      saveSession(next);
+      return next;
+    });
+  };
+
   return {
     session,
     addTokens,
@@ -87,5 +96,6 @@ export function useSession(): UseSessionReturn {
     equipItem,
     unequipItem,
     setUserName,
+    updateMultiplicationData,
   };
 }

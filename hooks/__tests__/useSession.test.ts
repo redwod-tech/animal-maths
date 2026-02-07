@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useSession } from "@/hooks/useSession";
-import { defaultSession, SESSION_KEY } from "@/lib/session";
+import { defaultSession, SESSION_KEY, defaultMultiplicationData } from "@/lib/session";
 
 let store: Record<string, string> = {};
 beforeEach(() => {
@@ -152,5 +152,47 @@ describe("useSession", () => {
 
     const parsed = JSON.parse(stored);
     expect(parsed.tokens).toBe(7);
+  });
+
+  it("updateMultiplicationData: updates and persists multiplicationData", () => {
+    const { result } = renderHook(() => useSession());
+
+    const newData = {
+      bestScores: { single: { 7: 15 }, mixed: 20, boss: 0 },
+      missHistory: [{ fact: { a: 7, b: 8 }, wrongAnswer: 54, timestamp: 1000 }],
+    };
+
+    act(() => {
+      result.current.updateMultiplicationData(newData);
+    });
+
+    expect(result.current.session.multiplicationData).toEqual(newData);
+
+    const stored = store[SESSION_KEY];
+    const parsed = JSON.parse(stored);
+    expect(parsed.multiplicationData).toEqual(newData);
+  });
+
+  it("updateMultiplicationData: partial update merges with existing data", () => {
+    const { result } = renderHook(() => useSession());
+
+    // First set some data
+    act(() => {
+      result.current.updateMultiplicationData({
+        bestScores: { single: { 7: 15 }, mixed: 20, boss: 0 },
+        missHistory: [],
+      });
+    });
+
+    // Now update just bestScores
+    act(() => {
+      result.current.updateMultiplicationData({
+        ...result.current.session.multiplicationData!,
+        bestScores: { single: { 7: 15, 3: 22 }, mixed: 20, boss: 5 },
+      });
+    });
+
+    expect(result.current.session.multiplicationData!.bestScores.single).toEqual({ 7: 15, 3: 22 });
+    expect(result.current.session.multiplicationData!.bestScores.boss).toBe(5);
   });
 });

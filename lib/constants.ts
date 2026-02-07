@@ -148,7 +148,7 @@ export const SECTIONS: SectionData[] = [
     id: "multiplication",
     name: "Multiplication",
     emoji: "✖️",
-    description: "Practice multiplying numbers",
+    description: "Fast 60-second times table drill",
   },
   {
     id: "skip-counting",

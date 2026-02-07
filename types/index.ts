@@ -52,6 +52,7 @@ export interface SessionData {
   purchasedItems: string[];
   equipped: Record<CosmeticCategory, string | null>;
   sections: Record<MathSection, DifficultyState>;
+  multiplicationData?: MultiplicationSessionData;
 }
 
 export type PlayState =
@@ -66,4 +67,45 @@ export type PlayState =
 export interface RewardAmounts {
   firstTry: number;
   retry: number;
+}
+
+// Fast Multiplication types
+
+export type MultiplicationGameMode = "single" | "mixed" | "boss";
+
+export type FastMultiplyPhase =
+  | "MODE_SELECT"
+  | "COUNTDOWN"
+  | "PLAYING"
+  | "ROUND_END"
+  | "MISS_DRILL"
+  | "DRILL_END";
+
+export interface MissRecord {
+  fact: { a: number; b: number };
+  wrongAnswer: number;
+  timestamp: number;
+}
+
+export interface MultiplicationSessionData {
+  bestScores: {
+    single: Record<number, number>; // { 7: 15, 3: 22 }
+    mixed: number;
+    boss: number;
+  };
+  missHistory: MissRecord[]; // capped at 50
+}
+
+export interface WeightedFact {
+  a: number;
+  b: number;
+  answer: number;
+  weight: number;
+}
+
+export interface MultiplicationQuestion {
+  a: number;
+  b: number;
+  answer: number;
+  text: string;
 }

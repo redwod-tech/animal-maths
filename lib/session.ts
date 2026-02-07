@@ -1,6 +1,13 @@
-import type { SessionData } from "@/types";
+import type { SessionData, MultiplicationSessionData } from "@/types";
 
 export const SESSION_KEY = "animal-maths-session";
+
+export function defaultMultiplicationData(): MultiplicationSessionData {
+  return {
+    bestScores: { single: {}, mixed: 0, boss: 0 },
+    missHistory: [],
+  };
+}
 
 export function defaultSession(): SessionData {
   return {
@@ -15,6 +22,7 @@ export function defaultSession(): SessionData {
       "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
       "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     },
+    multiplicationData: defaultMultiplicationData(),
   };
 }
 
@@ -26,11 +34,23 @@ export function getSession(): SessionData {
     }
     const defaults = defaultSession();
     const stored = JSON.parse(raw);
+    const defaultMult = defaultMultiplicationData();
+    const storedMult = stored.multiplicationData;
     return {
       ...defaults,
       ...stored,
       equipped: { ...defaults.equipped, ...stored.equipped },
       sections: { ...defaults.sections, ...stored.sections },
+      multiplicationData: storedMult
+        ? {
+            bestScores: {
+              ...defaultMult.bestScores,
+              ...storedMult.bestScores,
+              single: { ...storedMult.bestScores?.single },
+            },
+            missHistory: storedMult.missHistory ?? defaultMult.missHistory,
+          }
+        : defaultMult,
     };
   } catch {
     return defaultSession();

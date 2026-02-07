@@ -5,9 +5,10 @@ export interface SectionCardProps {
   name: string;
   emoji: string;
   level: number;
+  subtitle?: string;
 }
 
-export function SectionCard({ id, name, emoji, level }: SectionCardProps) {
+export function SectionCard({ id, name, emoji, level, subtitle }: SectionCardProps) {
   return (
     <Link
       href={`/play/${id}`}
@@ -15,7 +16,7 @@ export function SectionCard({ id, name, emoji, level }: SectionCardProps) {
     >
       <span className="text-5xl block mb-3">{emoji}</span>
       <h3 className="text-xl font-bold text-gray-800 mb-1">{name}</h3>
-      <p className="text-sm text-gray-500">Level {level}</p>
+      <p className="text-sm text-gray-500">{subtitle || `Level ${level}`}</p>
     </Link>
   );
 }
