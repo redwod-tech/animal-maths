@@ -24,7 +24,14 @@ export function getSession(): SessionData {
     if (raw === null) {
       return defaultSession();
     }
-    return { ...defaultSession(), ...JSON.parse(raw) };
+    const defaults = defaultSession();
+    const stored = JSON.parse(raw);
+    return {
+      ...defaults,
+      ...stored,
+      equipped: { ...defaults.equipped, ...stored.equipped },
+      sections: { ...defaults.sections, ...stored.sections },
+    };
   } catch {
     return defaultSession();
   }
