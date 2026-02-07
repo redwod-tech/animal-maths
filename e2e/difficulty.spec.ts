@@ -65,6 +65,10 @@ test.describe("Difficulty progression", () => {
     expect(requestLevels[0]).toBe(1); // Initial fetch at level 1
     expect(requestLevels[5]).toBe(2); // After 5 correct, promoted to level 2
 
+    // Verify the level indicator shows 5 progress pips
+    const pips = page.locator('[data-testid="progress-pip"]');
+    await expect(pips).toHaveCount(5);
+
     // Also verify via localStorage
     const session = await page.evaluate(() => {
       const raw = localStorage.getItem("animal-maths-session");

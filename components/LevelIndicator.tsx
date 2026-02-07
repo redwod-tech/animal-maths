@@ -2,6 +2,7 @@
 
 import type { MathSection } from "@/types";
 import { SECTIONS } from "@/lib/constants";
+import { PROMOTE_THRESHOLD } from "@/lib/difficulty";
 
 interface LevelIndicatorProps {
   level: number;
@@ -10,7 +11,6 @@ interface LevelIndicatorProps {
 }
 
 const TOTAL_LEVELS = 5;
-const CORRECT_TO_LEVEL_UP = 3;
 
 export function LevelIndicator({ level, consecutiveCorrect, section }: LevelIndicatorProps) {
   const sectionData = SECTIONS.find((s) => s.id === section);
@@ -37,7 +37,7 @@ export function LevelIndicator({ level, consecutiveCorrect, section }: LevelIndi
 
       {/* Progress pips toward next level */}
       <div className="flex items-center gap-0.5 ml-1">
-        {Array.from({ length: CORRECT_TO_LEVEL_UP }).map((_, i) => (
+        {Array.from({ length: PROMOTE_THRESHOLD }).map((_, i) => (
           <div
             key={i}
             data-testid="progress-pip"

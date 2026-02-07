@@ -15,21 +15,29 @@ const sizeClasses = {
 export function PenguinAvatar({ equipped, size = "md" }: PenguinAvatarProps) {
   const hatItem = equipped.hat ? getShopItemById(equipped.hat) : null;
   const scarfItem = equipped.scarf ? getShopItemById(equipped.scarf) : null;
+  const accessoryItem = equipped.accessory
+    ? getShopItemById(equipped.accessory)
+    : null;
   const bgItem = equipped.background
     ? getShopItemById(equipped.background)
     : null;
 
   return (
-    <div className={`relative ${sizeClasses[size]} flex items-center justify-center`}>
-      {/* Background overlay - behind penguin */}
-      {bgItem && (
+    <div className={`relative ${sizeClasses[size]} flex items-center justify-center rounded-full overflow-hidden`}>
+      {/* Background overlay - gradient when bgStyle present, else emoji fallback */}
+      {bgItem && bgItem.bgStyle ? (
+        <div
+          data-testid="cosmetic-background"
+          className={`absolute inset-0 ${bgItem.bgStyle}`}
+        />
+      ) : bgItem ? (
         <span
           data-testid="cosmetic-background"
           className="absolute inset-0 flex items-center justify-center text-5xl opacity-30 pointer-events-none"
         >
           {bgItem.emoji}
         </span>
-      )}
+      ) : null}
 
       {/* Penguin image */}
       <img
@@ -55,6 +63,16 @@ export function PenguinAvatar({ equipped, size = "md" }: PenguinAvatarProps) {
           className="absolute bottom-1/4 left-1/2 -translate-x-1/2 z-20 text-xl pointer-events-none"
         >
           {scarfItem.emoji}
+        </span>
+      )}
+
+      {/* Accessory overlay - chest/body area */}
+      {accessoryItem && (
+        <span
+          data-testid="cosmetic-accessory"
+          className="absolute bottom-1/3 left-1/2 -translate-x-1/2 z-20 text-lg pointer-events-none"
+        >
+          {accessoryItem.emoji}
         </span>
       )}
     </div>

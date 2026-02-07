@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { LevelIndicator } from "@/components/LevelIndicator";
+import { PROMOTE_THRESHOLD } from "@/lib/difficulty";
 
 describe("LevelIndicator", () => {
   it("renders 5 level dots", () => {
@@ -29,15 +30,24 @@ describe("LevelIndicator", () => {
     expect(screen.getByText(/addition/i)).toBeInTheDocument();
   });
 
-  it("shows progress pips for consecutiveCorrect", () => {
+  it("renders progress pips matching PROMOTE_THRESHOLD (5)", () => {
     const { container } = render(
-      <LevelIndicator level={2} consecutiveCorrect={2} section="subtraction" />
+      <LevelIndicator level={1} consecutiveCorrect={0} section="addition" />
     );
     const pips = container.querySelectorAll('[data-testid="progress-pip"]');
-    expect(pips.length).toBeGreaterThanOrEqual(1);
+    expect(pips).toHaveLength(PROMOTE_THRESHOLD);
+    expect(pips).toHaveLength(5);
+  });
+
+  it("fills correct number of progress pips", () => {
+    const { container } = render(
+      <LevelIndicator level={2} consecutiveCorrect={3} section="subtraction" />
+    );
+    const pips = container.querySelectorAll('[data-testid="progress-pip"]');
+    expect(pips).toHaveLength(PROMOTE_THRESHOLD);
     const filled = Array.from(pips).filter((p) =>
       p.classList.contains("bg-gold")
     );
-    expect(filled).toHaveLength(2);
+    expect(filled).toHaveLength(3);
   });
 });

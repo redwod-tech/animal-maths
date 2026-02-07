@@ -7,12 +7,13 @@ export function defaultSession(): SessionData {
     userName: "",
     tokens: 0,
     purchasedItems: [],
-    equipped: { hat: null, scarf: null, background: null },
+    equipped: { hat: null, scarf: null, background: null, accessory: null },
     sections: {
       addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
       subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
       multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
       "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+      "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     },
   };
 }

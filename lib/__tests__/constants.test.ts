@@ -22,18 +22,47 @@ describe("SHOP_ITEMS", () => {
     }
   });
 
-  it("every category has at least one item (hat, scarf, background)", () => {
-    const categories: CosmeticCategory[] = ["hat", "scarf", "background"];
+  it("every category has at least one item (hat, scarf, background, accessory)", () => {
+    const categories: CosmeticCategory[] = ["hat", "scarf", "background", "accessory"];
     for (const category of categories) {
       const items = SHOP_ITEMS.filter((item) => item.category === category);
       expect(items.length).toBeGreaterThanOrEqual(1);
     }
   });
+
+  it("has 5 hats, 4 scarves, 3 accessories, 5 backgrounds", () => {
+    expect(SHOP_ITEMS.filter((i) => i.category === "hat")).toHaveLength(5);
+    expect(SHOP_ITEMS.filter((i) => i.category === "scarf")).toHaveLength(4);
+    expect(SHOP_ITEMS.filter((i) => i.category === "accessory")).toHaveLength(3);
+    expect(SHOP_ITEMS.filter((i) => i.category === "background")).toHaveLength(5);
+  });
+
+  it("all background items have bgStyle", () => {
+    const bgs = SHOP_ITEMS.filter((i) => i.category === "background");
+    for (const bg of bgs) {
+      expect(bg.bgStyle).toBeDefined();
+      expect(bg.bgStyle!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("contains the new items", () => {
+    expect(getShopItemById("narwhal-horn")).toBeDefined();
+    expect(getShopItemById("ice-crown")).toBeDefined();
+    expect(getShopItemById("santa-hat")).toBeDefined();
+    expect(getShopItemById("fire-scarf")).toBeDefined();
+    expect(getShopItemById("star-scarf")).toBeDefined();
+    expect(getShopItemById("cool-shades")).toBeDefined();
+    expect(getShopItemById("bow-tie")).toBeDefined();
+    expect(getShopItemById("gold-medal")).toBeDefined();
+    expect(getShopItemById("aurora-borealis")).toBeDefined();
+    expect(getShopItemById("deep-ocean")).toBeDefined();
+    expect(getShopItemById("starry-night")).toBeDefined();
+  });
 });
 
 describe("SECTIONS", () => {
-  it("all 4 math sections defined (addition, subtraction, multiplication, skip-counting)", () => {
-    expect(SECTIONS).toHaveLength(4);
+  it("all 5 math sections defined", () => {
+    expect(SECTIONS).toHaveLength(5);
 
     const sectionMap = new Map(SECTIONS.map((s) => [s.id, s]));
 
@@ -56,12 +85,17 @@ describe("SECTIONS", () => {
     expect(skipCounting).toBeDefined();
     expect(skipCounting!.name).toBe("Skip Counting");
     expect(skipCounting!.emoji).toBe("🔢");
+
+    const areaPerimeter = sectionMap.get("area-perimeter");
+    expect(areaPerimeter).toBeDefined();
+    expect(areaPerimeter!.name).toBe("Area & Perimeter");
+    expect(areaPerimeter!.emoji).toBe("📐");
   });
 });
 
 describe("CATEGORY_ORDER", () => {
-  it("contains all three categories in correct order", () => {
-    expect(CATEGORY_ORDER).toEqual(["hat", "scarf", "background"]);
+  it("contains all four categories in correct order", () => {
+    expect(CATEGORY_ORDER).toEqual(["hat", "scarf", "accessory", "background"]);
   });
 });
 
@@ -69,6 +103,7 @@ describe("CATEGORY_LABELS", () => {
   it("maps each category to its display label", () => {
     expect(CATEGORY_LABELS.hat).toBe("Hats");
     expect(CATEGORY_LABELS.scarf).toBe("Scarves");
+    expect(CATEGORY_LABELS.accessory).toBe("Accessories");
     expect(CATEGORY_LABELS.background).toBe("Backgrounds");
   });
 });
@@ -88,6 +123,7 @@ describe("getShopItemById", () => {
   it("finds items from each category", () => {
     expect(getShopItemById("snowflake-scarf")?.category).toBe("scarf");
     expect(getShopItemById("northern-lights")?.category).toBe("background");
+    expect(getShopItemById("cool-shades")?.category).toBe("accessory");
   });
 });
 

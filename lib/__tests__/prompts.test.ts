@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildProblemPrompt, buildExplanationPrompt, generateEquation } from "@/lib/prompts";
+import { buildProblemPrompt, buildExplanationPrompt, generateEquation, generateGeometryProblem } from "@/lib/prompts";
 import { MathSection, DifficultyLevel } from "@/types";
 
 describe("generateEquation", () => {
@@ -101,6 +101,80 @@ describe("buildProblemPrompt", () => {
     expect(lower).toContain("question");
     expect(lower).toContain("answer");
     expect(lower).toContain("hint");
+  });
+});
+
+describe("generateGeometryProblem", () => {
+  it("generates rectangle problems for level 1", () => {
+    for (let i = 0; i < 10; i++) {
+      const prob = generateGeometryProblem(1);
+      expect(prob.shape.type).toBe("rectangle");
+      expect(prob.shape.dimensions.width).toBeGreaterThanOrEqual(2);
+      expect(prob.shape.dimensions.width).toBeLessThanOrEqual(6);
+      expect(prob.answer).toBeGreaterThan(0);
+    }
+  });
+
+  it("generates rectangle problems for level 2", () => {
+    for (let i = 0; i < 10; i++) {
+      const prob = generateGeometryProblem(2);
+      expect(prob.shape.type).toBe("rectangle");
+      expect(prob.shape.dimensions.width).toBeGreaterThanOrEqual(5);
+      expect(prob.shape.dimensions.width).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it("generates squares and rectangles for level 3", () => {
+    const types = new Set<string>();
+    for (let i = 0; i < 50; i++) {
+      const prob = generateGeometryProblem(3);
+      types.add(prob.shape.type);
+      expect(["rectangle", "square"]).toContain(prob.shape.type);
+    }
+    // Should see both types over 50 calls
+    expect(types.size).toBe(2);
+  });
+
+  it("generates triangle problems for level 4", () => {
+    for (let i = 0; i < 10; i++) {
+      const prob = generateGeometryProblem(4);
+      expect(prob.shape.type).toBe("triangle");
+      expect(prob.answer).toBeGreaterThan(0);
+      // Area should be integer
+      expect(prob.answer).toBe(Math.floor(prob.answer));
+    }
+  });
+
+  it("generates L-shape problems for level 5", () => {
+    for (let i = 0; i < 10; i++) {
+      const prob = generateGeometryProblem(5);
+      expect(prob.shape.type).toBe("l-shape");
+      expect(prob.shape.dimensions.w1).toBeDefined();
+      expect(prob.shape.dimensions.h1).toBeDefined();
+      expect(prob.shape.dimensions.w2).toBeDefined();
+      expect(prob.shape.dimensions.h2).toBeDefined();
+      expect(prob.answer).toBeGreaterThan(0);
+    }
+  });
+
+  it("verifies area answers for rectangles", () => {
+    for (let i = 0; i < 20; i++) {
+      const prob = generateGeometryProblem(1);
+      if (prob.shape.questionType === "area") {
+        expect(prob.answer).toBe(prob.shape.dimensions.width * prob.shape.dimensions.height);
+      } else {
+        expect(prob.answer).toBe(2 * (prob.shape.dimensions.width + prob.shape.dimensions.height));
+      }
+    }
+  });
+
+  it("alternates between area and perimeter", () => {
+    const types = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      types.add(generateGeometryProblem(1).shape.questionType);
+    }
+    expect(types.has("area")).toBe(true);
+    expect(types.has("perimeter")).toBe(true);
   });
 });
 

@@ -46,4 +46,24 @@ describe("ProblemCard", () => {
     expect(card.className).not.toContain("border-red-400");
     expect(card.className).not.toContain("bg-red-50");
   });
+
+  it("renders ShapeRenderer when shape prop is provided", () => {
+    render(
+      <ProblemCard
+        question="Find the area"
+        answer=""
+        shape={{
+          type: "rectangle",
+          dimensions: { width: 5, height: 3 },
+          questionType: "area",
+        }}
+      />
+    );
+    expect(screen.getByTestId("shape-svg")).toBeInTheDocument();
+  });
+
+  it("does not render ShapeRenderer when no shape prop", () => {
+    render(<ProblemCard question="3 + 4 =" answer="" />);
+    expect(screen.queryByTestId("shape-svg")).not.toBeInTheDocument();
+  });
 });

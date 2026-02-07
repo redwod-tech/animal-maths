@@ -50,6 +50,7 @@ describe("session", () => {
         hat: null,
         scarf: null,
         background: null,
+        accessory: null,
       });
 
       const sections: Array<keyof SessionData["sections"]> = [
@@ -57,6 +58,7 @@ describe("session", () => {
         "subtraction",
         "multiplication",
         "skip-counting",
+        "area-perimeter",
       ];
       for (const section of sections) {
         expect(session.sections[section]).toEqual({
@@ -79,12 +81,13 @@ describe("session", () => {
         userName: "Ava",
         tokens: 42,
         purchasedItems: ["crown"],
-        equipped: { hat: "crown", scarf: null, background: null },
+        equipped: { hat: "crown", scarf: null, background: null, accessory: null },
         sections: {
           addition: { level: 2, consecutiveCorrect: 3, consecutiveWrong: 0 },
           subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
           multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
           "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
         },
       };
       localStorage.setItem(SESSION_KEY, JSON.stringify(customSession));
@@ -136,12 +139,13 @@ describe("session", () => {
         userName: "Ava",
         tokens: 99,
         purchasedItems: ["tophat", "blue-bg"],
-        equipped: { hat: "tophat", scarf: null, background: "blue-bg" },
+        equipped: { hat: "tophat", scarf: null, background: "blue-bg", accessory: null },
         sections: {
           addition: { level: 3, consecutiveCorrect: 0, consecutiveWrong: 1 },
           subtraction: { level: 2, consecutiveCorrect: 2, consecutiveWrong: 0 },
           multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
           "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+          "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
         },
       };
 

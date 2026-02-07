@@ -1,4 +1,4 @@
-export type MathSection = "addition" | "subtraction" | "multiplication" | "skip-counting";
+export type MathSection = "addition" | "subtraction" | "multiplication" | "skip-counting" | "area-perimeter";
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
@@ -8,10 +8,19 @@ export interface DifficultyState {
   consecutiveWrong: number;
 }
 
+export type ShapeType = "rectangle" | "square" | "triangle" | "l-shape";
+
+export interface ShapeData {
+  type: ShapeType;
+  dimensions: Record<string, number>;
+  questionType: "area" | "perimeter";
+}
+
 export interface Problem {
   question: string;
   answer: number;
   hint?: string;
+  shape?: ShapeData;
 }
 
 export interface ExplanationResponse {
@@ -19,7 +28,7 @@ export interface ExplanationResponse {
   encouragement: string;
 }
 
-export type CosmeticCategory = "hat" | "scarf" | "background";
+export type CosmeticCategory = "hat" | "scarf" | "background" | "accessory";
 
 export interface ShopItemData {
   id: string;
@@ -27,6 +36,7 @@ export interface ShopItemData {
   cost: number;
   category: CosmeticCategory;
   emoji: string;
+  bgStyle?: string;
 }
 
 export interface SectionData {

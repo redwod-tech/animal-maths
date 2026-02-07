@@ -9,13 +9,18 @@ const defaultMockSession = {
   tokens: 10,
   userName: "Ava",
   purchasedItems: [],
-  equipped: { hat: null, scarf: null, background: null },
+  equipped: { hat: null, scarf: null, background: null, accessory: null },
   sections: {
     addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     subtraction: { level: 2, consecutiveCorrect: 0, consecutiveWrong: 0 },
     multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     "skip-counting": {
       level: 3,
+      consecutiveCorrect: 0,
+      consecutiveWrong: 0,
+    },
+    "area-perimeter": {
+      level: 1,
       consecutiveCorrect: 0,
       consecutiveWrong: 0,
     },
@@ -42,12 +47,13 @@ describe("HomeScreen", () => {
     mockSetUserName.mockClear();
   });
 
-  it("renders all 4 section cards", () => {
+  it("renders all 5 section cards", () => {
     render(<HomeScreen />);
     expect(screen.getByText("Addition")).toBeInTheDocument();
     expect(screen.getByText("Subtraction")).toBeInTheDocument();
     expect(screen.getByText("Multiplication")).toBeInTheDocument();
     expect(screen.getByText("Skip Counting")).toBeInTheDocument();
+    expect(screen.getByText("Area & Perimeter")).toBeInTheDocument();
   });
 
   it("renders penguin avatar image", () => {
@@ -83,6 +89,15 @@ describe("HomeScreen", () => {
     expect(hrefs).toContain("/play/subtraction");
     expect(hrefs).toContain("/play/multiplication");
     expect(hrefs).toContain("/play/skip-counting");
+    expect(hrefs).toContain("/play/area-perimeter");
+  });
+
+  it("renders Arctic Explorer link", () => {
+    render(<HomeScreen />);
+    const exploreLink = screen.getByRole("link", {
+      name: /arctic explorer/i,
+    });
+    expect(exploreLink).toHaveAttribute("href", "/explore");
   });
 
   it("shows welcome message when userName is set", () => {

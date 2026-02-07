@@ -4,7 +4,7 @@ function seedSession(tokens: number, purchasedItems: string[] = []) {
   return JSON.stringify({
     tokens,
     purchasedItems,
-    equipped: { hat: null, scarf: null, background: null },
+    equipped: { hat: null, scarf: null, background: null, accessory: null },
     sections: {
       addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
       subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
@@ -14,12 +14,17 @@ function seedSession(tokens: number, purchasedItems: string[] = []) {
         consecutiveCorrect: 0,
         consecutiveWrong: 0,
       },
+      "area-perimeter": {
+        level: 1,
+        consecutiveCorrect: 0,
+        consecutiveWrong: 0,
+      },
     },
   });
 }
 
 test.describe("Shop", () => {
-  test("shop displays items with prices", async ({ page }) => {
+  test("shop displays items with prices including accessories", async ({ page }) => {
     // Seed localStorage with enough tokens
     await page.goto("/");
     await page.evaluate((data) => {
@@ -30,6 +35,7 @@ test.describe("Shop", () => {
     // Category headings are visible
     await expect(page.getByText("Hats")).toBeVisible();
     await expect(page.getByText("Scarves")).toBeVisible();
+    await expect(page.getByText("Accessories")).toBeVisible();
     await expect(page.getByText("Backgrounds")).toBeVisible();
 
     // Some items with their prices are visible
@@ -37,6 +43,7 @@ test.describe("Shop", () => {
     await expect(page.getByText("5 tokens")).toBeVisible();
     await expect(page.getByText("Snowflake Scarf")).toBeVisible();
     await expect(page.getByText("4 tokens")).toBeVisible();
+    await expect(page.getByText("Cool Shades")).toBeVisible();
     await expect(page.getByText("Northern Lights")).toBeVisible();
     await expect(page.getByText("10 tokens")).toBeVisible();
   });

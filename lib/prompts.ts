@@ -1,4 +1,4 @@
-import { MathSection, DifficultyLevel } from "@/types";
+import { MathSection, DifficultyLevel, ShapeData } from "@/types";
 
 function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -48,6 +48,110 @@ export function generateEquation(section: MathSection, level: DifficultyLevel): 
       return { equation: `${seq.join(", ")}, ?`, answer: start + 3 * skipBy };
     }
   }
+}
+
+export interface GeometryProblem {
+  equation: string;
+  answer: number;
+  shape: ShapeData;
+}
+
+export function generateGeometryProblem(level: DifficultyLevel): GeometryProblem {
+  const askArea = Math.random() < 0.5;
+  const questionType = askArea ? "area" : "perimeter";
+
+  if (level <= 2) {
+    // Rectangles
+    const maxSide = level === 1 ? 6 : 12;
+    const minSide = level === 1 ? 2 : 5;
+    const width = randInt(minSide, maxSide);
+    const height = randInt(minSide, maxSide);
+    const answer = askArea ? width * height : 2 * (width + height);
+    const label = askArea ? "area" : "perimeter";
+    return {
+      equation: `Find the ${label} of a rectangle with width ${width} and height ${height}`,
+      answer,
+      shape: { type: "rectangle", dimensions: { width, height }, questionType },
+    };
+  }
+
+  if (level === 3) {
+    // Squares + rectangles mixed
+    const isSquare = Math.random() < 0.5;
+    if (isSquare) {
+      const side = randInt(3, 15);
+      const answer = askArea ? side * side : 4 * side;
+      const label = askArea ? "area" : "perimeter";
+      return {
+        equation: `Find the ${label} of a square with side ${side}`,
+        answer,
+        shape: { type: "square", dimensions: { side }, questionType },
+      };
+    }
+    const width = randInt(3, 15);
+    const height = randInt(3, 15);
+    const answer = askArea ? width * height : 2 * (width + height);
+    const label = askArea ? "area" : "perimeter";
+    return {
+      equation: `Find the ${label} of a rectangle with width ${width} and height ${height}`,
+      answer,
+      shape: { type: "rectangle", dimensions: { width, height }, questionType },
+    };
+  }
+
+  if (level === 4) {
+    // Right triangles (area only for triangles, perimeter uses base+height+hypotenuse)
+    const base = randInt(3, 10);
+    const height = randInt(3, 10);
+    if (askArea) {
+      const answer = (base * height) / 2;
+      // Only use integer areas
+      if (answer === Math.floor(answer)) {
+        return {
+          equation: `Find the area of a triangle with base ${base} and height ${height}`,
+          answer,
+          shape: { type: "triangle", dimensions: { base, height }, questionType: "area" },
+        };
+      }
+      // If non-integer, force even product
+      const adjBase = base % 2 === 0 ? base : base + 1;
+      return {
+        equation: `Find the area of a triangle with base ${adjBase} and height ${height}`,
+        answer: (adjBase * height) / 2,
+        shape: { type: "triangle", dimensions: { base: adjBase, height }, questionType: "area" },
+      };
+    }
+    // Perimeter of right triangle: base + height + hypotenuse
+    // Use pythagorean triples for clean numbers
+    const triples = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17]];
+    const triple = pick(triples.filter(([a, b]) => a >= 3 && a <= 10 && b >= 3 && b <= 10));
+    const [a, b, c] = triple || [3, 4, 5];
+    return {
+      equation: `Find the perimeter of a right triangle with sides ${a}, ${b}, and ${c}`,
+      answer: a + b + c,
+      shape: { type: "triangle", dimensions: { base: a, height: b, hypotenuse: c }, questionType: "perimeter" },
+    };
+  }
+
+  // Level 5: L-shapes (composite rectangles)
+  const w1 = randInt(3, 8);
+  const h1 = randInt(3, 8);
+  const w2 = randInt(3, 8);
+  const h2 = randInt(3, 8);
+  if (askArea) {
+    return {
+      equation: `Find the area of an L-shape made of two rectangles: ${w1}x${h1} and ${w2}x${h2}`,
+      answer: w1 * h1 + w2 * h2,
+      shape: { type: "l-shape", dimensions: { w1, h1, w2, h2 }, questionType: "area" },
+    };
+  }
+  // Perimeter of L-shape: total outer edges
+  const perimeter = 2 * (w1 + h1) + 2 * (w2 + h2) - 2 * Math.min(w1, w2);
+  return {
+    equation: `Find the perimeter of an L-shape made of two rectangles: ${w1}x${h1} and ${w2}x${h2}`,
+    answer: perimeter,
+    shape: { type: "l-shape", dimensions: { w1, h1, w2, h2 }, questionType: "perimeter" },
+  };
 }
 
 export function buildProblemPrompt(

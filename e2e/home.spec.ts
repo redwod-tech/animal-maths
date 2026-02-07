@@ -25,11 +25,12 @@ test.describe("Home page", () => {
     // Title is visible
     await expect(page.getByText("Animal Maths")).toBeVisible();
 
-    // All four section cards are visible
+    // All five section cards are visible
     await expect(page.getByText("Addition")).toBeVisible();
     await expect(page.getByText("Subtraction")).toBeVisible();
     await expect(page.getByText("Multiplication")).toBeVisible();
     await expect(page.getByText("Skip Counting")).toBeVisible();
+    await expect(page.getByText("Area & Perimeter")).toBeVisible();
   });
 
   test("clicking a section card navigates to play screen", async ({ page }) => {
@@ -49,6 +50,15 @@ test.describe("Home page", () => {
 
     await page.waitForURL("**/shop");
     await expect(page.getByText("Shop")).toBeVisible();
+  });
+
+  test("Arctic Explorer link navigates to explore", async ({ page }) => {
+    await page.goto("/");
+
+    await page.getByRole("link", { name: "Arctic Explorer" }).click();
+
+    await page.waitForURL("**/explore");
+    await expect(page.getByText("Arctic Explorer")).toBeVisible();
   });
 
   test("token counter displays on home", async ({ page }) => {

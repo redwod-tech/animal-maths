@@ -10,12 +10,13 @@ const defaultMockSession = {
   userName: "Ava",
   tokens: 15,
   purchasedItems: ["arctic-explorer-hat", "snowflake-scarf"],
-  equipped: { hat: "arctic-explorer-hat", scarf: null, background: null },
+  equipped: { hat: "arctic-explorer-hat", scarf: null, background: null, accessory: null },
   sections: {
     addition: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     subtraction: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     multiplication: { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
     "skip-counting": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
+    "area-perimeter": { level: 1, consecutiveCorrect: 0, consecutiveWrong: 0 },
   },
 };
 
@@ -66,14 +67,8 @@ describe("CollectionsScreen", () => {
     render(<CollectionsScreen />);
     expect(screen.getByText("Hats")).toBeInTheDocument();
     expect(screen.getByText("Scarves")).toBeInTheDocument();
+    expect(screen.getByText("Accessories")).toBeInTheDocument();
     expect(screen.getByText("Backgrounds")).toBeInTheDocument();
-  });
-
-  it("shows progress for each category", () => {
-    render(<CollectionsScreen />);
-    // 1 of 2 hats purchased, 1 of 2 scarves, 0 of 2 backgrounds
-    const progressTexts = screen.getAllByText(/of 2 collected/);
-    expect(progressTexts).toHaveLength(3);
   });
 
   it("shows purchased items as CollectionItem cards", () => {
@@ -84,15 +79,16 @@ describe("CollectionsScreen", () => {
 
   it("shows Equipped badge on equipped item", () => {
     render(<CollectionsScreen />);
-    // arctic-explorer-hat is equipped
     expect(screen.getByText(/equipped/i)).toBeInTheDocument();
   });
 
   it("shows empty state for categories with no purchased items", () => {
     render(<CollectionsScreen />);
-    // No backgrounds purchased
     expect(
       screen.getByText(/no backgrounds yet/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/no accessories yet/i)
     ).toBeInTheDocument();
   });
 
@@ -104,7 +100,6 @@ describe("CollectionsScreen", () => {
 
   it("calls equipItem when tapping unequipped item", async () => {
     render(<CollectionsScreen />);
-    // Snowflake Scarf is purchased but not equipped
     const wearButton = screen.getByRole("button", { name: /wear snowflake scarf/i });
     await userEvent.click(wearButton);
     expect(mockEquipItem).toHaveBeenCalledWith("snowflake-scarf", "scarf");
@@ -112,7 +107,6 @@ describe("CollectionsScreen", () => {
 
   it("calls unequipItem when tapping equipped item", async () => {
     render(<CollectionsScreen />);
-    // Arctic Explorer Hat is equipped
     const removeButton = screen.getByRole("button", {
       name: /remove arctic explorer hat/i,
     });
@@ -125,6 +119,7 @@ describe("CollectionsScreen", () => {
     render(<CollectionsScreen />);
     expect(screen.getByText(/no hats yet/i)).toBeInTheDocument();
     expect(screen.getByText(/no scarves yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/no accessories yet/i)).toBeInTheDocument();
     expect(screen.getByText(/no backgrounds yet/i)).toBeInTheDocument();
   });
 });

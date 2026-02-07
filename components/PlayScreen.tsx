@@ -291,7 +291,7 @@ export default function PlayScreen({ section }: PlayScreenProps) {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4">
         {playState === "ANSWERING" && problem && (
           <>
-            <ProblemCard question={problem.question} answer={answer} />
+            <ProblemCard question={problem.question} answer={answer} shape={problem.shape} />
             <NumberPad
               onDigit={handleDigit}
               onBackspace={handleBackspace}

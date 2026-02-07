@@ -2,18 +2,9 @@
 
 import Link from "next/link";
 import { useSession } from "@/hooks/useSession";
-import { SHOP_ITEMS } from "@/lib/constants";
+import { SHOP_ITEMS, CATEGORY_ORDER, CATEGORY_LABELS } from "@/lib/constants";
 import { ShopItem } from "@/components/ShopItem";
 import TokenCounter from "@/components/TokenCounter";
-import type { CosmeticCategory } from "@/types";
-
-const CATEGORY_LABELS: Record<CosmeticCategory, string> = {
-  hat: "Hats",
-  scarf: "Scarves",
-  background: "Backgrounds",
-};
-
-const CATEGORY_ORDER: CosmeticCategory[] = ["hat", "scarf", "background"];
 
 export default function ShopScreen() {
   const { session, purchaseItem, equipItem } = useSession();

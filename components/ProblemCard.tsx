@@ -1,14 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { ShapeData } from "@/types";
+import { ShapeRenderer } from "@/components/ShapeRenderer";
 
 interface ProblemCardProps {
   question: string;
   answer: string;
   isCorrect?: boolean | null;
+  shape?: ShapeData;
 }
 
-export function ProblemCard({ question, answer, isCorrect }: ProblemCardProps) {
+export function ProblemCard({ question, answer, isCorrect, shape }: ProblemCardProps) {
   const borderClass =
     isCorrect === true
       ? "border-aurora-green bg-green-50"
@@ -26,6 +29,11 @@ export function ProblemCard({ question, answer, isCorrect }: ProblemCardProps) {
       <p className="text-center text-3xl font-bold text-arctic-800">
         {question}
       </p>
+      {shape && (
+        <div className="flex justify-center my-4">
+          <ShapeRenderer shape={shape} />
+        </div>
+      )}
       <motion.p
         key={answer}
         initial={{ scale: 1.3, opacity: 0.5 }}

@@ -81,6 +81,14 @@ export default function HomeScreen() {
         My Collection
       </Link>
 
+      {/* Arctic Explorer link */}
+      <Link
+        href="/explore"
+        className="px-8 py-3 rounded-2xl bg-teal-500 text-white font-bold text-lg hover:bg-teal-600 transition-colors shadow-md mb-4"
+      >
+        Arctic Explorer
+      </Link>
+
       {/* Shop link */}
       <Link
         href="/shop"
